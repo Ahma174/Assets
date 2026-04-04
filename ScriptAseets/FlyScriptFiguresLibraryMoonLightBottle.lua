@@ -1,4 +1,3 @@
-The issue is AlignOrientation is rotating the root part to match the camera, which also affects movement direction. Remove ao entirely and just use a BodyGyro to keep the player upright:
 FLYING = false
 QEfly = true
 iyflyspeed = 0.4
