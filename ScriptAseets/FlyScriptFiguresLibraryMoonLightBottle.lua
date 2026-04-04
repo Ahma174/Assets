@@ -1,3 +1,4 @@
+The issue is AlignOrientation is rotating the root part to match the camera, which also affects movement direction. Remove ao entirely and just use a BodyGyro to keep the player upright:
 FLYING = false
 QEfly = true
 iyflyspeed = 0.4
@@ -110,13 +111,11 @@ function flyR()
 	lv.RelativeTo = Enum.ActuatorRelativeTo.World
 	lv.Parent = T
 
-	local ao = Instance.new("AlignOrientation")
-	ao.Name = "FlyAlign"
-	ao.Attachment0 = att
-	ao.Mode = Enum.OrientationAlignmentMode.OneAttachment
-	ao.MaxTorque = math.huge
-	ao.Responsiveness = 20
-	ao.Parent = T
+	local bg = Instance.new("BodyGyro")
+	bg.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+	bg.P = 9e4
+	bg.CFrame = T.CFrame
+	bg.Parent = T
 
 	FLYING = true
 
@@ -127,10 +126,11 @@ function flyR()
 		local humanoid = Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
 		if humanoid then humanoid.PlatformStand = false end
 
-		ao.CFrame = camera.CFrame
+		bg.CFrame = CFrame.new(root.Position)
 
 		local dir = controlModule:GetMoveVector()
 		local move = (camera.CFrame.RightVector * dir.X) + (camera.CFrame.LookVector * -dir.Z)
+		move = Vector3.new(move.X, 0, move.Z)
 
 		local mobileQ = mobileUp and (vfly and vehicleflyspeed or iyflyspeed)*2 or 0
 		local mobileE = mobileDown and -(vfly and vehicleflyspeed or iyflyspeed)*2 or 0
@@ -162,7 +162,7 @@ function flyR()
 	if humanoid then humanoid.PlatformStand = false end
 
 	lv:Destroy()
-	ao:Destroy()
+	bg:Destroy()
 	att:Destroy()
 	upBtn:Destroy()
 	downBtn:Destroy()
